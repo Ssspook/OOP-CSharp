@@ -12,6 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Entities\" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="..\.editorconfig" />
   </ItemGroup>
 
@@ -22,4 +25,7 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Entities\" />
+  </ItemGroup>
 </Project>
