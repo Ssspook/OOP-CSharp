@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Isu.Tools;
 
 namespace Isu
 {
     public class Group
     {
-        private static uint numberOfMembersAllowed = 30;
         private readonly List<Student> students = new List<Student>();
+        private uint numberOfMembersAllowed = 30;
         private string _groupNumber;
 
         public Group(string name)
@@ -27,9 +28,7 @@ namespace Isu
             groupNum = name.Substring(3, 2);
 
             if (name.Length != 5 || header != "M3" || !allowedCourses.Contains(course) || !allowedGroups.Contains(groupNum))
-            {
                 throw new IsuException("Invalid group name");
-            }
 
             string groupName = name;
             Course = Convert.ToUInt32(groupName.Substring(2, 1));
@@ -46,51 +45,30 @@ namespace Isu
 
         public void AddStudent(Student student)
         {
-            numberOfMembersAllowed--;
-            if (numberOfMembersAllowed == 0)
-            {
+            if (students.Count == numberOfMembersAllowed)
                 throw new IsuException($"This group is full. You cannot add students to {GroupName}");
-            }
 
             students.Add(student);
         }
 
         public Student FindStudent(string name)
         {
-            foreach (Student student in students)
-            {
-                if (student.Name == name)
-                {
-                    return student;
-                }
-            }
+            Student student = students.SingleOrDefault(student => student.Name == name);
 
-            return null;
+            return student;
         }
 
-        public Student FindStudent(int id)
+        public Student FindStudent(uint id)
         {
-            foreach (Student student in students)
-            {
-                if (student.Id == id)
-                {
-                    return student;
-                }
-            }
+            Student student = students.SingleOrDefault(student => student.Id == id);
 
-            return null;
+            return student;
         }
 
-        public void RemoveStudent(int id)
+        public void RemoveStudent(uint id)
         {
-            foreach (Student student in students)
-            {
-                if (student.Id == id)
-                {
-                    students.Remove(student);
-                    return;
-                }
-            }
+            Student student = students.SingleOrDefault(student => student.Id == id);
+            students.Remove(student);
         }
     }
 }

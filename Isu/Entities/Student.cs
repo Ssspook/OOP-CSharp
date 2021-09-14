@@ -1,38 +1,29 @@
-﻿using Isu.Tools;
-
-namespace Isu
+﻿namespace Isu
 {
     public class Student
     {
-        private static int _uniqueId;
+        private static uint _uniqueId;
 
         public Student(string name, string group)
         {
             _uniqueId++;
-            if (_uniqueId > 9999)
-            {
-                throw new IsuException("No more students can be added");
-            }
 
-            Id = 1000000000 + _uniqueId;
+            Id = _uniqueId;
             Name = name;
             Group = group;
         }
 
         public Student(string name)
+           : this(name, null)
         {
             _uniqueId++;
-            if (_uniqueId > 9999)
-            {
-                throw new IsuException("No more students can be added");
-            }
 
-            Id = 1000000000 + _uniqueId;
+            Id = _uniqueId;
             Name = name;
             Group = null;
         }
 
-        public int Id { get; }
+        public uint Id { get; }
         public string Name { get; }
         public string Group { get; }
     }

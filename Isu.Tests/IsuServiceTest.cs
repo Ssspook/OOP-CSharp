@@ -48,7 +48,7 @@ namespace Isu.Tests
 
                 for (int i = 0; i < 31; i++)
                 {
-                    _isuService.AddStudent(group, "Maxim Ivanov");
+                    _isuService.AddStudent(group, "Maxim Maximov");
                 }
             });
         }
