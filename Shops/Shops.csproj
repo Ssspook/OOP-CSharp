@@ -13,15 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Entities\" />
-    <None Remove="EntitesManagement\" />
-    <None Remove="ShopsException\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\.editorconfig" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
