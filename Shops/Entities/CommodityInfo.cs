@@ -1,19 +1,17 @@
 ﻿namespace Shops.Entities
 {
-    public class CommoditySet
+    public class CommodityInfo
     {
-        public CommoditySet()
+        public CommodityInfo()
         {
         }
 
-        public CommoditySet(Commodity commodity, uint quantity, uint price)
+        public CommodityInfo(uint quantity, uint price)
         {
-            Commodity = commodity;
             Quantity = quantity;
             Price = price;
         }
 
-        public Commodity Commodity { get; }
         public uint Quantity { get; private set; }
         public uint Price { get; private set; }
 

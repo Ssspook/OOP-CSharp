@@ -7,27 +7,29 @@ namespace Shops.EntitiesManagement
 {
     public class ShopsManager
     {
-        public List<Shop> Shops { get; } = new List<Shop>();
+        private List<Shop> _shops = new List<Shop>();
 
-        public Shop CreateShop(string name, string address)
+        public Shop RegisterShop(Shop shop)
         {
-            var shop = new Shop(name, address);
-            Shops.Add(shop);
+            if (shop == null)
+                throw new ShopsException("Shop cannot be null");
+
+            _shops.Add(shop);
 
             return shop;
         }
 
         public Shop FindShopWithTheMostPrifotableSet(Commodity commodity, uint itemsToBuy)
         {
-            var shops = Shops.OrderBy(shop => shop.FindCommoditySet(commodity.Id).Price * itemsToBuy).ToList();
+            if (commodity == null)
+                throw new ShopsException("Commodity cannot be null");
 
-            if (shops[0] == null)
-                throw new ShopsException($"Commodity {commodity.Name} is not registered in any of the shops");
+            Shop shop = _shops.Where(shop => shop.FindCommoditySet(commodity) != null && shop.FindCommoditySet(commodity).Quantity >= itemsToBuy).OrderBy(shop => shop.FindCommoditySet(commodity).Price * itemsToBuy).FirstOrDefault();
 
-            if (shops[0].FindCommoditySet(commodity.Id).Quantity < itemsToBuy)
-                throw new ShopsException($"Not enough of {commodity.Name} of {commodity.Id} id in any shops");
+            if (shop == null)
+                return null;
 
-            return shops[0];
+            return shop;
         }
     }
 }

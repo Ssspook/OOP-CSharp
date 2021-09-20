@@ -5,10 +5,13 @@ namespace Shops.Entities
 {
     public class Customer
     {
-        private List<CommoditySet> _shoppingBasket = new List<CommoditySet>();
+        private Dictionary<Commodity, CommodityInfo> _shoppingBasket = new Dictionary<Commodity, CommodityInfo>();
 
         public Customer(string name, uint money)
         {
+            if (name == null)
+                throw new ShopsException("Customer's name cannot be null");
+
             Money = money;
             Name = name;
         }
@@ -18,13 +21,16 @@ namespace Shops.Entities
 
         public void AddToShoppingBasket(Commodity commodity, uint items, Shop shop)
         {
-            CommoditySet commoditySet = shop.FindCommoditySet(commodity.Id);
+            if (commodity == null)
+                throw new ShopsException("Commodity cannot be null");
 
-            if (Money - (commoditySet.Price * items) < 0)
+            CommodityInfo commodityInfo = shop.FindCommoditySet(commodity);
+
+            if (Money - (commodityInfo.Price * items) < 0)
                 throw new ShopsException($"Customer {Name} doesn't have enough money to buy {commodity.Name} {commodity.Id}");
 
-            _shoppingBasket.Add(commoditySet);
-            Money -= commoditySet.Price * items;
+            _shoppingBasket.Add(commodity, commodityInfo);
+            Money -= commodityInfo.Price * items;
         }
     }
 }

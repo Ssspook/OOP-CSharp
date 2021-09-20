@@ -10,17 +10,17 @@ namespace Shops.Tests
     {
         private ShopsManager _shopManager;
 
-        private Shop okayShop;
-        private Shop prizmaShop1;
-        private Shop prizmaShop2;
+        private Shop okayShop = new Shop("O'Kay", "Street 1, building 1");
+        private Shop prizmaShop1 = new Shop("Prizma", "Street 2, building 2");
+        private Shop prizmaShop2 = new Shop("Prizma", "Street 3, building 3");
 
         [SetUp]
         public void Setup()
         {
             _shopManager = new ShopsManager();
-            okayShop = _shopManager.CreateShop("Okay", "Street 1, Building 1");
-            prizmaShop1 = _shopManager.CreateShop("Prizma", "Street 2, Building 2");
-            prizmaShop2 = _shopManager.CreateShop("Prizma", "Street 3, Building 3");
+            okayShop = _shopManager.RegisterShop(okayShop);
+            prizmaShop1 = _shopManager.RegisterShop(prizmaShop1);
+            prizmaShop2 = _shopManager.RegisterShop(prizmaShop2);
         }
     
         [Test]
@@ -36,9 +36,9 @@ namespace Shops.Tests
 
             okayShop.RegisterAndAddCommodity(whiteRice, 7, 200);
 
-            CommoditySet commoditySet = okayShop.BuyItem(customer, whiteRice, positionsToBuy);
+            CommodityInfo commodityInfo = okayShop.BuyItem(customer, whiteRice, positionsToBuy);
 
-            Assert.AreEqual(commoditySet.Quantity, initialWhiteRiceQuantity - positionsToBuy);
+            Assert.AreEqual(commodityInfo.Quantity, initialWhiteRiceQuantity - positionsToBuy);
         }
 
         [Test]
@@ -49,11 +49,11 @@ namespace Shops.Tests
             uint initialWhiteRicePrice = 100;
             uint newWhiteRicePrice = 500;
            
-            CommoditySet commoditySet = okayShop.RegisterAndAddCommodity(whiteRice, 5, initialWhiteRicePrice);
+            CommodityInfo commodityInfo = okayShop.RegisterAndAddCommodity(whiteRice, 5, initialWhiteRicePrice);
 
-            commoditySet.ChangePrice(newWhiteRicePrice);
+            commodityInfo.ChangePrice(newWhiteRicePrice);
 
-            Assert.AreNotEqual(initialWhiteRicePrice, commoditySet.Price);
+            Assert.AreNotEqual(initialWhiteRicePrice, commodityInfo.Price);
         }
 
         [Test]
@@ -69,18 +69,15 @@ namespace Shops.Tests
         }
 
         [Test]
-        public void CommoditySetNotRegistered_TrowException()
+        public void CommoditySetNotRegistered_ReturnNull()
         {
-            Assert.Catch<ShopsException>(() =>
-            {
-                var brownRice = new Commodity("Brown Rice");
+            var brownRice = new Commodity("Brown Rice");
 
-                _shopManager.FindShopWithTheMostPrifotableSet(brownRice, 39);
-            });
+            Assert.AreEqual(_shopManager.FindShopWithTheMostPrifotableSet(brownRice, 39), null);
         }
 
         [Test]
-        public void NotEnoughCommoditiesInAnyShops_ThrowException()
+        public void NotEnoughCommoditiesInAnyShops_ReturnNull()
         {
             var whiteRice = new Commodity("White Rice");
 
@@ -88,10 +85,7 @@ namespace Shops.Tests
             prizmaShop1.RegisterAndAddCommodity(whiteRice, 5, 100);
             prizmaShop2.RegisterAndAddCommodity(whiteRice, 10, 80);
 
-            Assert.Catch<ShopsException>(() =>
-            {
-                _shopManager.FindShopWithTheMostPrifotableSet(whiteRice, 13);
-            });
+            Assert.AreEqual(_shopManager.FindShopWithTheMostPrifotableSet(whiteRice, 13), null);
         }
 
 
@@ -106,13 +100,13 @@ namespace Shops.Tests
             var peanutButter = new Commodity("Peanut Butter");
             okayShop.RegisterAndAddCommodity(peanutButter, 20, 70);
 
-            uint initialCommodityQuantity = okayShop.FindCommoditySet(peanutButter.Id).Quantity;
+            uint initialCommodityQuantity = okayShop.FindCommoditySet(peanutButter).Quantity;
 
             okayShop.BuyItem(customer, peanutButter, 1);
 
             Assert.AreEqual(customer.Money + 70, initialCustomersMoney);
             Assert.AreEqual(okayShop.ShopMoney - 70, initialShopMoney);
-            Assert.AreEqual(okayShop.FindCommoditySet(peanutButter.Id).Quantity + 1, initialCommodityQuantity);
+            Assert.AreEqual(okayShop.FindCommoditySet(peanutButter).Quantity + 1, initialCommodityQuantity);
         }
 
         [Test]

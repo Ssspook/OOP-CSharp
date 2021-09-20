@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Shops.Tools;
 
 namespace Shops.Entities
@@ -7,10 +6,13 @@ namespace Shops.Entities
     public class Shop
     {
         private static uint _shopsCount = 0;
-        private List<CommoditySet> _commodities = new List<CommoditySet>();
+        private Dictionary<Commodity, CommodityInfo> _commodities = new Dictionary<Commodity, CommodityInfo>();
 
         public Shop(string shopName, string address)
         {
+            if (shopName == null)
+                throw new ShopsException("Shop name cannot be null");
+
             _shopsCount++;
             ShopId = _shopsCount;
             ShopName = shopName;
@@ -22,85 +24,91 @@ namespace Shops.Entities
         public string ShopAddress { get; }
         public uint ShopMoney { get; private set; }
 
-        public void AddCommodity(uint id, uint quantity, uint price)
+        public void AddCommodity(Commodity commodity, uint quantity, uint price)
         {
-            CommoditySet commoditySet = _commodities.SingleOrDefault(item => item.Commodity.Id == id);
+            if (!_commodities.ContainsKey(commodity))
+                throw new ShopsException($"Commodity {commodity.Id} is not registered yet");
 
-            if (commoditySet == null)
-                throw new ShopsException($"Commodity {id} is not registered yet");
-
-            commoditySet.IncreaseQuantity(quantity);
-            commoditySet.ChangePrice(price);
+            _commodities[commodity].IncreaseQuantity(quantity);
+            _commodities[commodity].ChangePrice(price);
         }
 
-        public CommoditySet BuyItem(Customer customer, Commodity commodity, uint positionsBought)
+        public CommodityInfo BuyItem(Customer customer, Commodity commodity, uint positionsBought)
         {
-            ItemCheck(commodity, this);
+            if (customer == null)
+                throw new ShopsException("Customer cannot be null");
 
-            CommoditySet commoditySet = _commodities.SingleOrDefault(item => item.Commodity.Id == commodity.Id);
+            CommodityNullCheck(commodity);
 
-            if (commoditySet.Quantity < positionsBought)
+            CommodityAvailabilityCheck(commodity, this);
+
+            CommodityInfo commodityInfo = _commodities[commodity];
+
+            if (commodityInfo.Quantity < positionsBought)
                 throw new ShopsException($"Shop {ShopName} on {ShopAddress} doesn't have enough items of {commodity.Name} {commodity.Id} id");
 
-            if (commoditySet.Price * positionsBought > customer.Money)
+            if (commodityInfo.Price * positionsBought > customer.Money)
                 throw new ShopsException($"Customer {customer.Name} doesn't have enough money to buy {commodity.Name} {commodity.Id} id of {positionsBought} items");
 
-            commoditySet.DecreaseQuantity(positionsBought);
+            commodityInfo.DecreaseQuantity(positionsBought);
+
             customer.AddToShoppingBasket(commodity, positionsBought, this);
 
-            ShopMoney += commoditySet.Price * positionsBought;
+            ShopMoney += commodityInfo.Price * positionsBought;
 
-            return commoditySet;
+            return commodityInfo;
         }
 
         public void ChangeItemPrice(Commodity commodity, uint newPrice)
         {
-            ItemCheck(commodity, this);
+            CommodityNullCheck(commodity);
 
-            CommoditySet commoditySet = _commodities.SingleOrDefault(item => item.Commodity.Id == commodity.Id);
+            CommodityAvailabilityCheck(commodity, this);
 
-            commoditySet.ChangePrice(newPrice);
+            _commodities[commodity].ChangePrice(newPrice);
         }
 
         public void RegisterCommodity(Commodity commodity)
         {
-            CommoditySet item = _commodities.SingleOrDefault(item => item.Commodity.Id == commodity.Id);
+            CommodityNullCheck(commodity);
 
-            if (item != null)
+            if (_commodities.ContainsKey(commodity))
                 throw new ShopsException($"Commodity {commodity.Name} with {commodity.Id} id is already registered in {ShopName} shop");
 
-            var commoditySet = new CommoditySet(commodity, 0, 0);
-
-            _commodities.Add(commoditySet);
+            _commodities.Add(commodity, new CommodityInfo(0, 0));
         }
 
-        public CommoditySet RegisterAndAddCommodity(Commodity commodity, uint quantity, uint price)
+        public CommodityInfo RegisterAndAddCommodity(Commodity commodity, uint quantity, uint price)
         {
+            CommodityNullCheck(commodity);
+
             RegisterCommodity(commodity);
-            AddCommodity(commodity.Id, quantity, price);
+            AddCommodity(commodity, quantity, price);
 
-            return FindCommoditySet(commodity.Id);
+            return FindCommoditySet(commodity);
         }
 
-        public CommoditySet FindCommoditySet(uint id)
+        public CommodityInfo FindCommoditySet(Commodity commodity)
         {
-            CommoditySet commoditySet = _commodities.SingleOrDefault(item => item.Commodity.Id == id);
+            if (!_commodities.ContainsKey(commodity))
+                return null;
 
-            if (commoditySet == null)
-                throw new ShopsException($"No commodity with {id} id found in the shop {ShopName}");
-
-            return commoditySet;
+            return _commodities[commodity];
         }
 
-        private void ItemCheck(Commodity commodity, Shop shop)
+        private void CommodityAvailabilityCheck(Commodity commodity, Shop shop)
         {
-            CommoditySet commoditySet = _commodities.SingleOrDefault(item => item.Commodity.Id == commodity.Id);
-
-            if (commoditySet.Quantity == 0)
-                throw new ShopsException($"There is not enough of {commodity.Name} {commodity.Id} in {shop.ShopName} on {shop.ShopAddress}");
-
-            if (!_commodities.Contains(commoditySet))
+            if (!_commodities.ContainsKey(commodity))
                 throw new ShopsException($"There is no of {commodity.Name} {commodity.Id} registered in {shop.ShopName} on {shop.ShopAddress}");
+
+            if (_commodities[commodity].Quantity == 0)
+                throw new ShopsException($"There is not enough of {commodity.Name} {commodity.Id} in {shop.ShopName} on {shop.ShopAddress}");
+        }
+
+        private void CommodityNullCheck(Commodity commodity)
+        {
+            if (commodity == null)
+                throw new ShopsException("Commodity cannot be null");
         }
     }
 }
