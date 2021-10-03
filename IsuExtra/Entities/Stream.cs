@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Isu;
 using IsuExtra.Tools;
 
 namespace IsuExtra.Entities
@@ -21,7 +22,7 @@ namespace IsuExtra.Entities
 
         public List<Student> GetStudents()
         {
-            return !_students.Any() ? null : new List<Student>(_students);
+            return new List<Student>(_students);
         }
 
         public void AddLesson(Lesson lesson)
@@ -42,6 +43,13 @@ namespace IsuExtra.Entities
         public List<Lesson> GetLessons()
         {
             return new List<Lesson>(_lessons);
+        }
+
+        public void RemoveStudent(Student student)
+        {
+            if (student == null)
+                throw new IsuExtraException("Student cannot be null");
+            _students.Remove(student);
         }
     }
 }

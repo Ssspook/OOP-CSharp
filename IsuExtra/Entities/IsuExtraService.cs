@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Isu;
 using IsuExtra.Services;
 using IsuExtra.Tools;
 
@@ -7,29 +8,50 @@ namespace IsuExtra.Entities
 {
     public class IsuExtraService : IIsuExtraService
     {
-        private List<Group> groups = new List<Group>();
+        private List<Group> _groups = new List<Group>();
         private List<Ognp> _ognps = new List<Ognp>();
-        public IsuExtraService()
-        {
-        }
+        private Dictionary<Group, List<Lesson>> _groupsLessons = new Dictionary<Group, List<Lesson>>();
+        private int _maxOgnpAllowed = 2;
 
         public Group AddGroup(string name)
         {
             var gr = new Group(name);
-            groups.Add(gr);
+            _groups.Add(gr);
             return gr;
         }
 
         public Student AddStudent(Group group, string name)
         {
-            Group groupToFind = groups.SingleOrDefault(searchedGroup => searchedGroup.GroupName == group.GroupName);
+            Group groupToFind = _groups.SingleOrDefault(searchedGroup => searchedGroup.GroupName == group.GroupName);
 
             if (groupToFind == null)
                 throw new IsuExtraException($"{group.GroupName} group doesn't exist");
 
-            var student = new Student(name, groupToFind);
-            groupToFind.AddStudent(student);
+            var student = new Student(name, groupToFind.GroupName);
+            group.AddStudent(student);
             return student;
+        }
+
+        public void AddLessonToGroup(Lesson lesson, Group group)
+        {
+            if (lesson == null)
+                throw new IsuExtraException("Lesson cannot be null");
+            if (!_groupsLessons.Keys.Contains(group))
+            {
+                var lessons = new List<Lesson>();
+                lessons.Add(lesson);
+                _groupsLessons.Add(group, lessons);
+                return;
+            }
+
+            _groupsLessons[group].Add(lesson);
+        }
+
+        public List<Lesson> GetGroupLessons(Group group)
+        {
+            if (!_groupsLessons.Keys.Contains(group))
+                throw new IsuExtraException($"There is no group with {group.GroupName} name");
+            return new List<Lesson>(_groupsLessons[group]);
         }
 
         public Ognp AddOgnp(string megaFaculty)
@@ -62,11 +84,27 @@ namespace IsuExtra.Entities
                 throw new IsuExtraException("Ognp cannot be null");
             if (stream == null)
                 throw new IsuExtraException("Stream cannot be null");
-            Group studentsGroup = groups.FirstOrDefault(studentsGroup => studentsGroup.GetStudents().Contains(student));
+            if (GetStudentsOgnps(student).Count == _maxOgnpAllowed)
+                throw new IsuExtraException($"Student cannot be assigned to more than {_maxOgnpAllowed} ognps");
+
+            Group studentsGroup = _groups.FirstOrDefault(studentsGroup => studentsGroup.Students.Contains(student));
+            if (studentsGroup == null)
+                throw new IsuExtraException("Student isn't assigned to any group");
+
+            if (studentsGroup.MegaFaculty == ognp.MegaFaculty)
+                throw new IsuExtraException("Student cannot be assigned to ognp of his own megafaculty");
             if (CheckScheduleOverlay(studentsGroup, stream))
                 throw new IsuExtraException("Your study group schedule overlays chosen ognp stream, please choose another one");
-            student.SignToOgnp(ognp, stream);
+            stream.AddStudent(student);
             return student;
+        }
+
+        public List<Ognp> GetStudentsOgnps(Student student)
+        {
+            var studentsOgnps = _ognps.Where(ognp =>
+                GetStreamsList(ognp).Any(stream => stream.GetStudents().Contains(student))).ToList();
+
+            return studentsOgnps;
         }
 
         public Student RemoveStudentFromOgnp(Student student, Ognp ognp)
@@ -75,7 +113,17 @@ namespace IsuExtra.Entities
                 throw new IsuExtraException("Student cannot be null");
             if (ognp == null)
                 throw new IsuExtraException("Ognp cannot be null");
-            student.UnsignOfOgnp(ognp);
+            if (ognp == null)
+                throw new IsuExtraException("Ognp parameter cannot be null");
+
+            List<Ognp> studentsOgnps = GetStudentsOgnps(student);
+            if (!studentsOgnps.Contains(ognp))
+                throw new IsuExtraException($"Student is not assigned to {ognp.MegaFaculty}'s ognp");
+
+            // Note: if previous exception wasn't thrown we can guarantee that student is assigned to this ognp
+            Stream searchedStream =
+                ognp.GetStreams().First(searchedStream => searchedStream.GetStudents().Contains(student));
+            searchedStream.RemoveStudent(student);
             return student;
         }
 
@@ -95,7 +143,7 @@ namespace IsuExtra.Entities
 
         public List<Student> GetStudentsWithoutOgnp(Group group)
         {
-            List<Student> studentsNotAssignedToAnyOgnp = group.GetStudents().Where(student => student.GetOgnps().Count == 0).ToList();
+            var studentsNotAssignedToAnyOgnp = group.Students.Where(student => GetStudentsOgnps(student).Count == 0).ToList();
 
             return !studentsNotAssignedToAnyOgnp.Any() ? null : studentsNotAssignedToAnyOgnp;
         }
@@ -114,7 +162,7 @@ namespace IsuExtra.Entities
                 throw new IsuExtraException("Group cannot be null");
             if (stream == null)
                 throw new IsuExtraException("Stream cannot be null");
-            bool isOverlay = stream.GetLessons().Any(ognpLesson => Overlay(group.GetLessons(), ognpLesson));
+            bool isOverlay = stream.GetLessons().Any(ognpLesson => Overlay(GetGroupLessons(group), ognpLesson));
 
             return isOverlay;
         }

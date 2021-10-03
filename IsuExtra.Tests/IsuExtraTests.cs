@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Isu;
 using NUnit.Framework;
 using IsuExtra.Entities;
 using IsuExtra.Tools;
@@ -17,7 +18,7 @@ namespace IsuExtra.Tests
         public void Setup()
         {
             _isuExtraService = new IsuExtraService();
-            _ognp = _isuExtraService.AddOgnp("Megafaculty 1");
+            _ognp = _isuExtraService.AddOgnp("MegaFaculty 1");
             _group = _isuExtraService.AddGroup("R3201");
             _streamForOgnp = _isuExtraService.AddStreamToOgnp(_ognp);
         }
@@ -34,7 +35,7 @@ namespace IsuExtra.Tests
         {
             Assert.Catch<IsuExtraException>(() =>
             {
-                Ognp ognp2 = _isuExtraService.AddOgnp("Megafaculty 1");
+                Ognp ognp2 = _isuExtraService.AddOgnp("MegaFaculty 1");
             });
         }
 
@@ -42,9 +43,9 @@ namespace IsuExtra.Tests
         public void AddStudentToOgnp_StudentAdded()
         {
             Student student = _isuExtraService.AddStudent(_group, "Ivan Ivanov");
-
+            
             student = _isuExtraService.AddStudentToOgnpCourse(student, _ognp, _streamForOgnp);
-            Assert.True(student.GetOgnps().Contains(_ognp));
+            Assert.True(_isuExtraService.GetStudentsOgnps(student).Contains(_ognp));
         }
 
         [Test]
@@ -53,7 +54,6 @@ namespace IsuExtra.Tests
             Group invalidGroup = _isuExtraService.AddGroup("M3201");
             Student student = _isuExtraService.AddStudent(invalidGroup, "Ivan Ivanov");
             
-            student = _isuExtraService.AddStudentToOgnpCourse(student, _ognp, _streamForOgnp);
             Assert.Catch<IsuExtraException>(() =>
             {
                 student = _isuExtraService.AddStudentToOgnpCourse(student, _ognp, _streamForOgnp);
@@ -71,8 +71,8 @@ namespace IsuExtra.Tests
 
             Lesson math = new Lesson(startTimeMath, endTimeMath, "Prof 1", "320");
             Lesson oop = new Lesson(startTimeOop, endTimeOop, "Prof 2", "440");
-            _group.AddLesson(math);
-            _group.AddLesson(oop);
+            _isuExtraService.AddLessonToGroup(math, _group);
+            _isuExtraService.AddLessonToGroup(oop, _group);
 
             DateTime startTimeOgnp = new DateTime(2021, 1, 1, 9, 30, 0);
             DateTime endTimeOgnp = new DateTime(2021, 1, 1, 11, 00, 0);
@@ -91,10 +91,10 @@ namespace IsuExtra.Tests
         [Test]
         public void AddStudentOnThirdOgnp_ThrowException()
         {
-            Ognp ognp2 = _isuExtraService.AddOgnp("Megafaculty 2");
+            Ognp ognp2 = _isuExtraService.AddOgnp("MegaFaculty 3");
             Stream streamForOgnp2 = _isuExtraService.AddStreamToOgnp(ognp2);
             
-            Ognp ognp3 = _isuExtraService.AddOgnp("Megafaculty 3");
+            Ognp ognp3 = _isuExtraService.AddOgnp("MegaFaculty 4");
             Stream streamForOgnp3 = _isuExtraService.AddStreamToOgnp(ognp3);
             
             Student student = _isuExtraService.AddStudent(_group, "Maxim Maximov");
@@ -113,7 +113,7 @@ namespace IsuExtra.Tests
             
             student = _isuExtraService.AddStudentToOgnpCourse(student, _ognp, _streamForOgnp);
             _isuExtraService.RemoveStudentFromOgnp(student, _ognp);
-            Assert.True(!student.GetOgnps().Contains(_ognp));
+            Assert.True(!_isuExtraService.GetStudentsOgnps(student).Contains(_ognp));
         }
 
         [Test]
@@ -138,7 +138,7 @@ namespace IsuExtra.Tests
         [Test]
         public void GetStreamsList_ListIsEmpty_ReturnNull()
         {
-            Ognp newOgnp = _isuExtraService.AddOgnp("Megafaculty 2");
+            Ognp newOgnp = _isuExtraService.AddOgnp("MegaFaculty 2");
             List<Stream> streamsList = _isuExtraService.GetStreamsList(newOgnp);
             Assert.AreEqual(streamsList, null);
         }
@@ -157,14 +157,7 @@ namespace IsuExtra.Tests
             List<Student> studentsList = _isuExtraService.GetStudentsSignedToOgnpOnStream(_streamForOgnp);
             Assert.True(studentsList.Contains(student1) && studentsList.Contains(student2));
         }
-
-        [Test]
-        public void GetStudentsListOnStream_ListIsEmpty_ReturnNull()
-        {
-            List<Student> studentsList = _isuExtraService.GetStudentsSignedToOgnpOnStream(_streamForOgnp);
-            Assert.AreEqual(null, studentsList);
-        }
-
+        
         [Test]
         public void GetStudentsListNotAssignedToAnyOgnp_ListAcquired()
         {
@@ -177,7 +170,7 @@ namespace IsuExtra.Tests
         [Test]
         public void GetStudentsListNotAssignedToAnyOgnp_EverybodyAssigned_ReturnNull()
         {
-            Ognp ognp2 = _isuExtraService.AddOgnp("Megafaculty 2");
+            Ognp ognp2 = _isuExtraService.AddOgnp("MegaFaculty 3");
             Stream streamForOgnp2 = _isuExtraService.AddStreamToOgnp(ognp2);
             
             Student student1 = _isuExtraService.AddStudent(_group, "Name1");

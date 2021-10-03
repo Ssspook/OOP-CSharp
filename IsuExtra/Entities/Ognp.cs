@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Isu;
 using IsuExtra.Tools;
 
 namespace IsuExtra.Entities
@@ -7,6 +8,7 @@ namespace IsuExtra.Entities
     public class Ognp
     {
         private readonly List<Stream> _streams = new List<Stream>();
+        private List<Student> _students = new List<Student>();
         public Ognp(string megaFaculty)
         {
             MegaFaculty = megaFaculty;
