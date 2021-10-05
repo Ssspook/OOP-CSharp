@@ -8,25 +8,26 @@ namespace IsuExtra.Entities
 {
     public class IsuExtraService : IIsuExtraService
     {
-        private List<Group> _groups = new List<Group>();
         private List<Ognp> _ognps = new List<Ognp>();
         private Dictionary<Group, List<Lesson>> _groupsLessons = new Dictionary<Group, List<Lesson>>();
         private int _maxOgnpAllowed = 2;
-
+        private Isu.Isu _isuService = new Isu.Isu();
         public Group AddGroup(string name)
         {
-            var gr = new Group(name);
-            _groups.Add(gr);
-            return gr;
+            if (name == null)
+                throw new IsuExtraException("Name cannot be null");
+            Group group = _isuService.AddGroup(name);
+            return group;
         }
 
         public Student AddStudent(Group group, string name)
         {
-            Group groupToFind = _groups.SingleOrDefault(searchedGroup => searchedGroup.GroupName == group.GroupName);
+            Group groupToFind = _isuService.GetGroups().SingleOrDefault(searchedGroup => searchedGroup.GroupName == group.GroupName);
 
             if (groupToFind == null)
                 throw new IsuExtraException($"{group.GroupName} group doesn't exist");
-
+            if (name == null)
+                throw new IsuExtraException("Name cannot be null");
             var student = new Student(name, groupToFind.GroupName);
             group.AddStudent(student);
             return student;
@@ -36,6 +37,8 @@ namespace IsuExtra.Entities
         {
             if (lesson == null)
                 throw new IsuExtraException("Lesson cannot be null");
+            if (group == null)
+                throw new IsuExtraException("Group cannot be null");
             if (!_groupsLessons.Keys.Contains(group))
             {
                 var lessons = new List<Lesson>();
@@ -49,6 +52,8 @@ namespace IsuExtra.Entities
 
         public List<Lesson> GetGroupLessons(Group group)
         {
+            if (group == null)
+                throw new IsuExtraException("Group cannot be null");
             if (!_groupsLessons.Keys.Contains(group))
                 throw new IsuExtraException($"There is no group with {group.GroupName} name");
             return new List<Lesson>(_groupsLessons[group]);
@@ -87,7 +92,7 @@ namespace IsuExtra.Entities
             if (GetStudentsOgnps(student).Count == _maxOgnpAllowed)
                 throw new IsuExtraException($"Student cannot be assigned to more than {_maxOgnpAllowed} ognps");
 
-            Group studentsGroup = _groups.FirstOrDefault(studentsGroup => studentsGroup.Students.Contains(student));
+            Group studentsGroup = _isuService.GetGroups().FirstOrDefault(studentsGroup => studentsGroup.Students.Contains(student));
             if (studentsGroup == null)
                 throw new IsuExtraException("Student isn't assigned to any group");
 
@@ -101,6 +106,8 @@ namespace IsuExtra.Entities
 
         public List<Ognp> GetStudentsOgnps(Student student)
         {
+            if (student == null)
+                throw new IsuExtraException("Student cannot be null");
             var studentsOgnps = _ognps.Where(ognp =>
                 GetStreamsList(ognp).Any(stream => stream.GetStudents().Contains(student))).ToList();
 
@@ -111,8 +118,6 @@ namespace IsuExtra.Entities
         {
             if (student == null)
                 throw new IsuExtraException("Student cannot be null");
-            if (ognp == null)
-                throw new IsuExtraException("Ognp cannot be null");
             if (ognp == null)
                 throw new IsuExtraException("Ognp parameter cannot be null");
 
@@ -143,6 +148,8 @@ namespace IsuExtra.Entities
 
         public List<Student> GetStudentsWithoutOgnp(Group group)
         {
+            if (group == null)
+                throw new IsuExtraException("Group cannot be null");
             var studentsNotAssignedToAnyOgnp = group.Students.Where(student => GetStudentsOgnps(student).Count == 0).ToList();
 
             return !studentsNotAssignedToAnyOgnp.Any() ? null : studentsNotAssignedToAnyOgnp;

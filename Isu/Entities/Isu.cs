@@ -41,6 +41,11 @@ namespace Isu
             return group.FindStudent(id);
         }
 
+        public List<Group> GetGroups()
+        {
+            return new List<Group>(groups);
+        }
+
         public Student FindStudent(string name)
         {
             Group group = groups.SingleOrDefault(group => group.FindStudent(name) != null);
