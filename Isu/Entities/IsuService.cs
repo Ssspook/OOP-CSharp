@@ -4,13 +4,9 @@ using Isu.Services;
 using Isu.Tools;
 namespace Isu
 {
-    public class Isu : IIsuService
+    public class IsuService : IIsuService
     {
         private List<Group> groups = new List<Group>();
-
-        public Isu()
-        {
-        }
 
         public Group AddGroup(string name)
         {

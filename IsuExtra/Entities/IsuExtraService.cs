@@ -11,7 +11,7 @@ namespace IsuExtra.Entities
         private List<Ognp> _ognps = new List<Ognp>();
         private Dictionary<Group, List<Lesson>> _groupsLessons = new Dictionary<Group, List<Lesson>>();
         private int _maxOgnpAllowed = 2;
-        private Isu.Isu _isuService = new Isu.Isu();
+        private IsuService _isuService = new IsuService();
         public Group AddGroup(string name)
         {
             if (name == null)
