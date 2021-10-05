@@ -1,4 +1,4 @@
-﻿namespace Isu
+namespace Isu
 {
     public class Student
     {
@@ -14,7 +14,7 @@
         }
 
         public Student(string name)
-           : this(name, null)
+            : this(name, null)
         {
             _uniqueId++;
 

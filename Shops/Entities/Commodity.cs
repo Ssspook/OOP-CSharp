@@ -1,4 +1,4 @@
-﻿using Shops.Tools;
+using Shops.Tools;
 
 namespace Shops.Entities
 {

@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using Shops.Entities;
 using Shops.EntitiesManagement;
 using Shops.Tools;

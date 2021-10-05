@@ -1,4 +1,4 @@
-﻿namespace Isu
+namespace Isu
 {
     public class CourseNumber
     {

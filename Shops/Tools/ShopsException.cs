@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 namespace Shops.Tools
 {
     public class ShopsException : Exception

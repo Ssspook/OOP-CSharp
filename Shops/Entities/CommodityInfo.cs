@@ -1,4 +1,4 @@
-﻿namespace Shops.Entities
+namespace Shops.Entities
 {
     public class CommodityInfo
     {
