@@ -18,8 +18,6 @@ namespace Backups
                 throw new BackupException("Name cannot be null");
             if (storingType == null)
                 throw new BackupException("Storing type cannot be null");
-            if (!Directory.Exists(pathToBackup))
-                throw new BackupException("This directory doesn't exist");
             if (pathToBackup == null)
                 throw new BackupException("Path to backup cannot be null");
 
