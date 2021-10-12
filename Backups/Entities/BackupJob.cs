@@ -22,7 +22,7 @@ namespace Backups
                 throw new BackupException("Path to backup cannot be null");
 
             PathToBackup = $"{pathToBackup}/{name}";
-            Directory.CreateDirectory(PathToBackup);
+
             StoringType = storingType;
             Name = name;
         }
@@ -42,8 +42,6 @@ namespace Backups
 
             var newRestorePoint = new RestorePoint(creationTime, _filesToBackup, name);
             _restorePoints.Add(newRestorePoint);
-            Directory.CreateDirectory($"{PathToBackup}/{name}");
-
             newRestorePoint.SetPath($"{PathToBackup}/{name}");
             return newRestorePoint;
         }

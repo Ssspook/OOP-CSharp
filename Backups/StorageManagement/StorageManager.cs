@@ -16,6 +16,9 @@ namespace Backups
                 throw new BackupException("Backup Job cannot be null");
             if (restorePoint == null)
                 throw new BackupException("Restore Point cannot be null");
+
+            Directory.CreateDirectory(backupJob.PathToBackup);
+            Directory.CreateDirectory(restorePoint.Path);
             if (backupJob.StoringType == "SingleStorage")
                 _algorithms.SingleStoring(backupJob, restorePoint);
             else
