@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Backups.RestorePointServices;
+using Backups.Entities;
 using Backups.Services;
 
 namespace Backups
@@ -11,38 +11,36 @@ namespace Backups
     {
         private List<FileInfo> _filesToBackup = new List<FileInfo>();
         private List<RestorePoint> _restorePoints = new List<RestorePoint>();
-
-        public BackupJob(string storingType, string name, string pathToBackup)
+        private IStoringAlgorithm _algorithm;
+        public BackupJob(IStoringAlgorithm algorithm, string name, string pathToBackup)
         {
             if (name == null)
                 throw new BackupException("Name cannot be null");
-            if (storingType == null)
-                throw new BackupException("Storing type cannot be null");
+            if (algorithm == null)
+                throw new BackupException("Algorithm type cannot be null");
             if (pathToBackup == null)
                 throw new BackupException("Path to backup cannot be null");
 
             PathToBackup = $"{pathToBackup}/{name}";
 
-            StoringType = storingType;
+            _algorithm = algorithm;
             Name = name;
         }
 
-        public string StoringType { get; }
         public string Name { get; }
         public string PathToBackup { get; }
         public IReadOnlyCollection<FileInfo> FilesToBackup => _filesToBackup.AsReadOnly();
         public IReadOnlyCollection<RestorePoint> RestorePoints => _restorePoints.AsReadOnly();
 
-        public RestorePoint CreateRestorePoint(string name, DateTime creationTime)
+        public RestorePoint ProcessJob()
         {
-            if (name == null)
-                throw new BackupException("Name cannot be null");
-            if (creationTime == null)
-                throw new BackupException("Creation Time cannot be null");
-
-            var newRestorePoint = new RestorePoint(creationTime, _filesToBackup, name);
+            var storageManager = new StorageManager();
+            string restorePointPath = storageManager.GetRestorePointPath(DateTime.Now.ToString("HH:mm:ss"), Name);
+            var newRestorePoint = new RestorePoint(DateTime.Now, _filesToBackup, DateTime.Now.ToString("HH:mm:ss"), restorePointPath);
+            storageManager.CreateBackupJobAndRestorePointDirectories(this, newRestorePoint);
             _restorePoints.Add(newRestorePoint);
-            newRestorePoint.SetPath($"{PathToBackup}/{name}");
+
+            _algorithm.Save(newRestorePoint.Path, backupJob: this);
             return newRestorePoint;
         }
 

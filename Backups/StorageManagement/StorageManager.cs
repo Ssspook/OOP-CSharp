@@ -1,28 +1,27 @@
 using System;
 using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using Backups.RestorePointServices;
+using Backups.Entities;
 using Backups.Services;
 
 namespace Backups
 {
     public class StorageManager : IRepository
     {
-        private StoringAlgorithms _algorithms = new StoringAlgorithms();
-        public void ProcessBackupJob(BackupJob backupJob, RestorePoint restorePoint)
+        public string PathToBackUpFolder => "/Users/noname/Desktop/Backups";
+
+        public string PathToFilesToBackup => "/Users/noname/Desktop/FilesToBackup";
+        public void CreateBackupJobAndRestorePointDirectories(BackupJob backupJob, RestorePoint restorePoint)
         {
             if (backupJob == null)
                 throw new BackupException("Backup Job cannot be null");
-            if (restorePoint == null)
-                throw new BackupException("Restore Point cannot be null");
 
-            Directory.CreateDirectory(backupJob.PathToBackup);
-            Directory.CreateDirectory(restorePoint.Path);
-            if (backupJob.StoringType == "SingleStorage")
-                _algorithms.SingleStoring(backupJob, restorePoint);
-            else
-                _algorithms.SplitStoring(backupJob, restorePoint);
+            Directory.CreateDirectory($"{PathToBackUpFolder}/{backupJob.Name}");
+            Directory.CreateDirectory($"{PathToBackUpFolder}/{backupJob.Name}/{restorePoint.Name}");
+        }
+
+        public string GetRestorePointPath(string restorePointName, string jobName)
+        {
+            return $"{PathToBackUpFolder}/{jobName}/{restorePointName}";
         }
     }
 }

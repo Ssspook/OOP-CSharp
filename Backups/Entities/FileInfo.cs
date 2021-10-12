@@ -10,7 +10,7 @@ namespace Backups
                 throw new BackupException("File Path cannot be null");
             if (name == null)
                 throw new BackupException("Name cannot be null");
-            Path = filePath;
+            Path = $"{filePath}/{name}";
             Name = name;
         }
 

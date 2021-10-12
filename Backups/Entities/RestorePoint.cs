@@ -4,13 +4,13 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Backups.Services;
 
-namespace Backups.RestorePointServices
+namespace Backups.Entities
 {
     public class RestorePoint
     {
         private List<FileInfo> _copiesInfo = new List<FileInfo>();
         private string _restorePointPath;
-        public RestorePoint(DateTime creationTime, List<FileInfo> backupedFiles, string name)
+        public RestorePoint(DateTime creationTime, List<FileInfo> backupedFiles, string name, string restorePointPath)
         {
             if (backupedFiles == null)
                 throw new BackupException("Backuped files cannot be null");
@@ -20,18 +20,12 @@ namespace Backups.RestorePointServices
             CreationTime = creationTime;
             Name = name;
             _copiesInfo = backupedFiles.ToList();
+            _restorePointPath = restorePointPath;
         }
 
         public DateTime CreationTime { get; }
         public string Name { get; }
         public ReadOnlyCollection<FileInfo> CopiesInfo => _copiesInfo.AsReadOnly();
         public string Path => _restorePointPath;
-
-        public void SetPath(string path)
-        {
-            if (path == null)
-                throw new BackupException("Path cannot be null");
-            _restorePointPath = path;
-        }
     }
 }

@@ -1,9 +1,10 @@
-using Backups.RestorePointServices;
+using Backups.Entities;
 
 namespace Backups
 {
     public interface IRepository
     {
-        public void ProcessBackupJob(BackupJob backupJob, RestorePoint restorePoint);
+        public void CreateBackupJobAndRestorePointDirectories(BackupJob backupJob, RestorePoint restorePoint);
+        public string GetRestorePointPath(string restorePointName, string jobName);
     }
 }
