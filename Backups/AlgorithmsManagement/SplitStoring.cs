@@ -6,23 +6,23 @@ namespace Backups
 {
     public class SplitStoring : IStoringAlgorithm
     {
-        public string CreateZipFile(string restorePointPath, string fileName)
+        public List<string> Save(List<FileInfo> filesToBackup)
         {
-            string zipFile = $"{restorePointPath}/{fileName}.zip";
-            return zipFile;
-        }
+            var storages = new List<string>();
 
-        public void Save(string restorePointPath, BackupJob backupJob)
-        {
-            foreach (var file in backupJob.FilesToBackup)
+            foreach (var file in filesToBackup)
             {
-                    string zipFile = CreateZipFile(restorePointPath, file.Name);
+                    string zipFile = $"{file.Name}.zip";
 
                     using (var archive = ZipFile.Open(zipFile, ZipArchiveMode.Create))
                     {
                         archive.CreateEntryFromFile(file.Path, Path.GetFileName(file.Path));
                     }
+
+                    storages.Add(zipFile);
             }
+
+            return storages;
         }
     }
 }

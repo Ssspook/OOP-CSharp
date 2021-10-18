@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Backups.Entities;
 using Backups.Services;
@@ -7,21 +8,33 @@ namespace Backups
 {
     public class StorageManager : IRepository
     {
-        public string PathToBackUpFolder => "/Users/noname/Desktop/Backups";
+        private string _pathToBackUpFolder;
 
-        public string PathToFilesToBackup => "/Users/noname/Desktop/FilesToBackup";
-        public void CreateBackupJobAndRestorePointDirectories(BackupJob backupJob, RestorePoint restorePoint)
+        private string _pathToFilesToBackup;
+        public StorageManager(string pathToBackupFolder, string pathToFilesToBackup)
+        {
+            _pathToBackUpFolder = pathToBackupFolder;
+            _pathToFilesToBackup = pathToFilesToBackup;
+        }
+
+        public string PathToFilesToBackup => _pathToFilesToBackup;
+        public RestorePoint SaveToRepository(List<string> storages, BackupJob backupJob)
         {
             if (backupJob == null)
                 throw new BackupException("Backup Job cannot be null");
+            if (storages == null)
+                throw new BackupException("Storages cannot be null");
 
-            Directory.CreateDirectory($"{PathToBackUpFolder}/{backupJob.Name}");
-            Directory.CreateDirectory($"{PathToBackUpFolder}/{backupJob.Name}/{restorePoint.Name}");
-        }
+            var newRestorePoint = new RestorePoint(DateTime.Now, DateTime.Now.ToString("HH:mm:ss"));
+            Directory.CreateDirectory($"{_pathToBackUpFolder}/{backupJob.Name}/{newRestorePoint.Name}");
 
-        public string GetRestorePointPath(string restorePointName, string jobName)
-        {
-            return $"{PathToBackUpFolder}/{jobName}/{restorePointName}";
+            foreach (var storage in storages)
+            {
+                File.Move(Path.GetFullPath(storage), $"{_pathToBackUpFolder}/{backupJob.Name}/{newRestorePoint.Name}/{storage}");
+            }
+
+            newRestorePoint.AddBackupedFiles(storages);
+            return newRestorePoint;
         }
     }
 }
