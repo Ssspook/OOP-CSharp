@@ -42,13 +42,14 @@ namespace Banks.UserInteraction
                    case DebitAccount debitAccount:
                        Console.WriteLine("Debit");
                        break;
-                    case DepositAccount depositAccount:
-                        Console.WriteLine("Deposit");
-                        break;
-                    default:
-                        throw new BanksException("Unknown account type");
-                };
+                   case DepositAccount depositAccount:
+                       Console.WriteLine("Deposit");
+                       break;
+                   default:
+                       throw new BanksException("Unknown account type");
+                }
             });
+
             Console.WriteLine();
         }
     }
