@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Banks.AccountManagement;
 using Banks.BanksManagement;
 using Banks.ClientManagement;
 using Banks.Tools;
@@ -33,7 +34,20 @@ namespace Banks.UserInteraction
             client.GetAccounts.ForEach(account =>
             {
                 Console.WriteLine($"Id: {account.Id}");
-                Console.WriteLine($"Type: {account.Type}");
+                switch (account)
+                {
+                   case CreditAccount creditAccount:
+                       Console.WriteLine("Credit");
+                       break;
+                   case DebitAccount debitAccount:
+                       Console.WriteLine("Debit");
+                       break;
+                    case DepositAccount depositAccount:
+                        Console.WriteLine("Deposit");
+                        break;
+                    default:
+                        throw new BanksException("Unknown account type");
+                };
             });
             Console.WriteLine();
         }

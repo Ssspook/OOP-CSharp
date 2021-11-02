@@ -8,8 +8,6 @@ namespace Banks.AccountManagement
         Guid Id { get; }
         Client Client { get; }
 
-        string Type { get; }
-
         double Balance { get; }
         bool IsWithdrawable(double sum);
 

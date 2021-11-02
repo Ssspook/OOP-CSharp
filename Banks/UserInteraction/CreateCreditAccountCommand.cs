@@ -37,9 +37,9 @@ namespace Banks.UserInteraction
 
             Console.WriteLine("What sum? ");
             double balance = double.Parse(Console.ReadLine() ?? string.Empty);
-            var creditAccountCreator = new CreditAccountCreator(client, bank.BankInfo.LimitForCredit, bank.BankInfo.CommissionPercent, bank.BankInfo.MaxOperationSumForUntrustedClients);
-            var creditAccount = creditAccountCreator.CreateAccount();
-            bank.RegisterAccount(creditAccount, client);
+
+            var bankFacade = new BankFacade(bank);
+            bankFacade.CreateAndRegisterCreditAccount(balance, client);
             Console.WriteLine();
         }
     }

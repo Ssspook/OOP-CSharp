@@ -38,9 +38,9 @@ namespace Banks.UserInteraction
 
             Console.WriteLine("What sum? ");
             double balance = double.Parse(Console.ReadLine() ?? string.Empty);
-            var debitAccountCreator = new DebitAccountCreator(client, balance, bank.BankInfo.YearlyPercent, bank.BankInfo.MaxOperationSumForUntrustedClients);
-            var debitAccount = debitAccountCreator.CreateAccount();
-            bank.RegisterAccount(debitAccount, client);
+
+            var bankFacade = new BankFacade(bank);
+            bankFacade.CreateAndRegisterDebitAccount(balance, client);
             Console.WriteLine();
         }
     }

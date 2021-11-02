@@ -14,7 +14,6 @@ namespace Banks.AccountManagement
         private double _maxWithdrawalSum;
         public DebitAccount(Client client, double balance, double percentage, double maxWithdrawalSum)
         {
-            Type = "Deposit";
             Id = Guid.NewGuid();
             _balance = balance;
             _percentage = percentage;
@@ -26,7 +25,6 @@ namespace Banks.AccountManagement
         public Guid Id { get; }
 
         public double Balance => _balance;
-        public string Type { get; }
         public bool IsWithdrawable(double sum)
         {
             if (!_client.IsTrustable())

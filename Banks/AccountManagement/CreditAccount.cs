@@ -11,17 +11,14 @@ namespace Banks.AccountManagement
         private Client _client;
         private double _maxWithdrawalSum;
 
-        public CreditAccount(Client client, int limit, double commissionPercent, double maxWithdrawalSum)
+        public CreditAccount(Client client, double limit, double commissionPercent, double maxWithdrawalSum)
         {
-            Type = "Deposit";
             Id = Guid.NewGuid();
             _commissionPercent = commissionPercent;
             _balance = limit;
             _client = client;
             _maxWithdrawalSum = maxWithdrawalSum;
         }
-
-        public string Type { get; }
 
         public double Balance => _balance;
 

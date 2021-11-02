@@ -40,9 +40,9 @@ namespace Banks.UserInteraction
 
             Console.WriteLine("For months? ");
             int months = int.Parse(Console.ReadLine() ?? string.Empty);
-            var depositAccountCreator = new DepositAccountCreator(client, DateTime.Now.AddMonths(months), DateTime.Now, bank.BankInfo.MaxOperationSumForUntrustedClients, balance, bank.BankInfo.SumsPercentages);
-            var depositAccount = depositAccountCreator.CreateAccount();
-            bank.RegisterAccount(depositAccount, client);
+
+            var bankFacade = new BankFacade(bank);
+            bankFacade.CreateAndRegisterDepositAccount(months, client, balance);
             Console.WriteLine();
         }
     }

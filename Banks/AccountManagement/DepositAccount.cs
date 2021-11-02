@@ -24,7 +24,6 @@ namespace Banks.AccountManagement
                 throw new BanksException("Balance has to be a positive number");
             var tariff = sumsPercentages.FirstOrDefault(percentage
                 => percentage.Key.IsInRange(balance));
-            Type = "Deposit";
             Id = Guid.NewGuid();
             _percentage = tariff.Value;
             _endOfPeriodDate = endOfPeriodDate;
@@ -35,8 +34,6 @@ namespace Banks.AccountManagement
         }
 
         public Client Client => _client;
-
-        public string Type { get; }
         public Guid Id { get; }
 
         public double Balance => _balance;

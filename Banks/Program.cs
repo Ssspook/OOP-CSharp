@@ -21,7 +21,7 @@ namespace Banks
             commandManager.AddCommand(new CreateDepositAccountCommand("/CreateDepositAccount"));
             commandManager.AddCommand(new DisplayBankInfoCommand("/DisplayBankInfo"));
             commandManager.AddCommand(new DisplayClientCommand("/DisplayClient"));
-            commandManager.AddCommand(new DisplayClientCommand("/ForwardTime"));
+            commandManager.AddCommand(new ForwardTimeCommand("/ForwardTime"));
 
             commandManager.AddCommand(new ClearCommand("/clear"));
 
