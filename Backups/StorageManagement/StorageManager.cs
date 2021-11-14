@@ -18,6 +18,7 @@ namespace Backups
         }
 
         public string PathToFilesToBackup => _pathToFilesToBackup;
+        public string PathToBackupFolder => _pathToBackUpFolder;
         public RestorePoint SaveToRepository(List<string> storages, BackupJob backupJob)
         {
             if (backupJob == null)

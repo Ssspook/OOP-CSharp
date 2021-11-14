@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Backups.Entities;
 using Backups.Services;
 
@@ -20,6 +21,8 @@ namespace Backups
         public string Name { get; }
         public IReadOnlyCollection<RestorePoint> RestorePoints => _restorePoints.AsReadOnly();
 
+        public IReadOnlyList<FileInfo> FilesToBackup => _filesToBackup;
+        public IStoringAlgorithm Algorithm => _algorithm;
         public RestorePoint ProcessJob(IRepository storageManager)
         {
             List<string> zipFiles = _algorithm.Save(_filesToBackup);
@@ -40,6 +43,20 @@ namespace Backups
             if (file == null)
                 throw new BackupException("File cannot be null");
             _filesToBackup.Add(file);
+        }
+        public void AddRestorePoints(List<RestorePoint> restorePoints)
+        {
+            _restorePoints = restorePoints.ToList();
+        }
+
+        public string CreateLogLine()
+        {
+            string restorePoints = "";
+            _restorePoints.ForEach(restorePoint =>
+            {
+                restorePoints += restorePoint.Name;
+            });
+            return $"Backup job {Name} was created with restore points: " + restorePoints;
         }
     }
 }

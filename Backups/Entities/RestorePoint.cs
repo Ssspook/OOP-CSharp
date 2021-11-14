@@ -24,5 +24,14 @@ namespace Backups.Entities
         {
             _copiesInfo = backupedFiles.ToList();
         }
+        public string CreateLogLine()
+        {
+            string files = "";
+            _copiesInfo.ForEach(file =>
+            {
+                files += file;
+            });
+            return $"Restore point {Name} was created with archives: " + files;
+        }
     }
 }
