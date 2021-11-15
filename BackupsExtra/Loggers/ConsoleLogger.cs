@@ -9,6 +9,7 @@ namespace BackupsExtra.Loggers
         {
             _isTimeCodeNeeded = isTimeCodeNeeded;
         }
+
         public void Log(string loggingLine)
         {
             if (_isTimeCodeNeeded)

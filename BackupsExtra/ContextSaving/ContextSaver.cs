@@ -6,6 +6,7 @@ using System.Xml;
 using System.Xml.Linq;
 using Backups;
 using Backups.Entities;
+using BackupsExtra.BackupsManagement;
 using FileInfo = Backups.FileInfo;
 
 namespace BackupsExtra.ContextSaving
@@ -21,18 +22,18 @@ namespace BackupsExtra.ContextSaving
             xmlFile.Save("JobsInfo");
         }
 
-        public void SaveInfo(List<BackupJob> backupJobs)
+        public void SaveInfo(List<BackupJobExtra> backupJobs)
         {
             var backupJobsInfo = new XmlDocument();
             backupJobsInfo.Load("JobsInfo");
 
             XmlElement xRoot = backupJobsInfo.DocumentElement;
 
-            backupJobs.ForEach(backupJob =>
+            backupJobs.ForEach(backupJobExtra =>
             {
                 XmlElement jobElem = backupJobsInfo.CreateElement("job");
                 XmlAttribute jobNameAttr = backupJobsInfo.CreateAttribute("name");
-                XmlText name = backupJobsInfo.CreateTextNode(backupJob.Name);
+                XmlText name = backupJobsInfo.CreateTextNode(backupJobExtra.Name);
                 jobNameAttr.AppendChild(name);
 
                 XmlElement storingAlgorithmElem = backupJobsInfo.CreateElement("storingAlgorithm");
@@ -42,13 +43,13 @@ namespace BackupsExtra.ContextSaving
                 jobElem.AppendChild(filesToBackupElem);
                 jobElem.AppendChild(restorePoints);
 
-                XmlNode algoNode = backupJobsInfo.CreateTextNode(GetAlgoType(backupJob.Algorithm));
+                XmlNode algoNode = backupJobsInfo.CreateTextNode(GetAlgoType(backupJobExtra.Algorithm));
                 storingAlgorithmElem.AppendChild(algoNode);
 
                 jobElem.AppendChild(storingAlgorithmElem);
                 jobElem.Attributes.Append(jobNameAttr);
 
-                foreach (FileInfo file in backupJob.FilesToBackup)
+                foreach (FileInfo file in backupJobExtra.FilesToBackup)
                 {
                     XmlElement fileElem = backupJobsInfo.CreateElement("file");
                     XmlNode fileNode = backupJobsInfo.CreateTextNode(file.Path);
@@ -57,7 +58,7 @@ namespace BackupsExtra.ContextSaving
                     filesToBackupElem.AppendChild(fileElem);
                 }
 
-                foreach (RestorePoint restorePoint in backupJob.RestorePoints)
+                foreach (RestorePoint restorePoint in backupJobExtra.RestorePoints)
                 {
                     XmlElement restorePointElem = backupJobsInfo.CreateElement("restorePoint");
 

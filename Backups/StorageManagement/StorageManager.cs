@@ -21,6 +21,7 @@ namespace Backups
         public string PathToBackupFolder => _pathToBackUpFolder;
         public RestorePoint SaveToRepository(List<string> storages, BackupJob backupJob)
         {
+            var filePaths = new List<string>();
             if (backupJob == null)
                 throw new BackupException("Backup Job cannot be null");
             if (storages == null)
@@ -32,9 +33,11 @@ namespace Backups
             foreach (var storage in storages)
             {
                 File.Move(Path.GetFullPath(storage), $"{_pathToBackUpFolder}/{backupJob.Name}/{newRestorePoint.Name}/{storage}");
+                string pathToFile = _pathToBackUpFolder + "/" + backupJob.Name + "/" + newRestorePoint.Name + "/" + storage;
+                filePaths.Add(pathToFile);
             }
 
-            newRestorePoint.AddBackupedFiles(storages);
+            newRestorePoint.AddBackupedFiles(filePaths);
             return newRestorePoint;
         }
     }

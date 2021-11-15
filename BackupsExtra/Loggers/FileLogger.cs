@@ -11,11 +11,12 @@ namespace BackupsExtra.Loggers
         {
             _isTimeCodeNeeded = isTimeCodeNeeded;
         }
+
         public void Log(string loggingLine)
         {
             using var writer = new StreamWriter("Log");
             if (_isTimeCodeNeeded)
-                writer.WriteLine(DateTime.Now + ": "+ loggingLine);
+                writer.WriteLine(DateTime.Now + ": " + loggingLine);
             else
                 writer.WriteLine(loggingLine);
         }

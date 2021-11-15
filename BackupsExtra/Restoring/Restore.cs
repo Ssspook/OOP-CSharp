@@ -1,23 +1,24 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using Backups.Entities;
 using BackupsExtra.RestorePointsManagement;
 using FileInfo = System.IO.FileInfo;
 
 namespace BackupsExtra.Restoring
 {
-    public class Restore
+    public class Restore : IRestorer
     {
-        public static void RestoreData(string restoreToLocation, RestorePointDescription restorePointDescriptor)
+        public void RestoreData(string restoreToLocation, RestorePoint restorePoint)
         {
-            string pathToRestorePoint = restorePointDescriptor.PathToRestorePoint;
             var filesInZip = new List<string>();
 
-            foreach (string zipFile in restorePointDescriptor.CopiesInfo)
+            foreach (string file in restorePoint.CopiesInfo)
             {
-                ZipArchive zip = ZipFile.OpenRead(pathToRestorePoint + "/" + zipFile);
-                filesInZip = zip.Entries.Select(file => file.Name).ToList();
+                ZipArchive zip = ZipFile.OpenRead(file);
+                filesInZip = zip.Entries.Select(fileInZip => fileInZip.Name).ToList();
             }
 
             var directoryInfo = new DirectoryInfo(restoreToLocation);
@@ -27,9 +28,9 @@ namespace BackupsExtra.Restoring
                     File.Delete(file.FullName);
             }
 
-            foreach (string fileToMove in restorePointDescriptor.CopiesInfo)
+            foreach (string fileToMove in restorePoint.CopiesInfo)
             {
-                ZipFile.ExtractToDirectory(pathToRestorePoint + "/" + fileToMove, restoreToLocation);
+                ZipFile.ExtractToDirectory(fileToMove, restoreToLocation);
             }
         }
     }

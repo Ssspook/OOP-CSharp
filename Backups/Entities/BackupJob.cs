@@ -19,7 +19,7 @@ namespace Backups
         }
 
         public string Name { get; }
-        public IReadOnlyCollection<RestorePoint> RestorePoints => _restorePoints.AsReadOnly();
+        public IReadOnlyList<RestorePoint> RestorePoints => _restorePoints.AsReadOnly();
 
         public IReadOnlyList<FileInfo> FilesToBackup => _filesToBackup;
         public IStoringAlgorithm Algorithm => _algorithm;
@@ -44,19 +44,15 @@ namespace Backups
                 throw new BackupException("File cannot be null");
             _filesToBackup.Add(file);
         }
+
         public void AddRestorePoints(List<RestorePoint> restorePoints)
         {
             _restorePoints = restorePoints.ToList();
         }
 
-        public string CreateLogLine()
+        public void RemoveRestorePoint(RestorePoint restorePoint)
         {
-            string restorePoints = "";
-            _restorePoints.ForEach(restorePoint =>
-            {
-                restorePoints += restorePoint.Name;
-            });
-            return $"Backup job {Name} was created with restore points: " + restorePoints;
+            _restorePoints.Remove(restorePoint);
         }
     }
 }

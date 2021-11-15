@@ -18,20 +18,33 @@ namespace Backups.Entities
         }
 
         public string Name { get; }
+
+        public DateTime CreationTime { get; private set; }
         public ReadOnlyCollection<string> CopiesInfo => _copiesInfo.AsReadOnly();
 
         public void AddBackupedFiles(List<string> backupedFiles)
         {
             _copiesInfo = backupedFiles.ToList();
         }
+
+        public void RemoveFile(string file)
+        {
+            _copiesInfo.Remove(file);
+        }
+
         public string CreateLogLine()
         {
-            string files = "";
+            string files = string.Empty;
             _copiesInfo.ForEach(file =>
             {
                 files += file;
             });
-            return $"Restore point {Name} was created with archives: " + files;
+            return $"Restore point {Name} was created with archives paths: " + files;
+        }
+
+        public void SetCreationTime(DateTime creationdate)
+        {
+            CreationTime = creationdate;
         }
     }
 }
