@@ -142,5 +142,34 @@ namespace BackupsExtra.Tests
                         restorePoint3.CopiesInfo.Contains($"{_storageManager.PathToBackupFolder}/{job1.Name}/{restorePoint3.Name}/{file4.Name}"));
 
         }
+
+        [Ignore("Not proper filesystem usage")]
+        [Test]
+        public void SplitStoringJobFilesRestoring_FilesRestored()
+        {
+            IStoringAlgorithm storingAlgorithm = new SplitStoring();
+            ILogger logger = new ConsoleLogger(false);
+            BackupJobExtra job1 = _backupsManager.CreateBackupJob(storingAlgorithm, "job2", logger);
+            var file1 = new FileInfo(_storageManager.PathToFilesToBackup, "myFile");
+            var file2 = new FileInfo(_storageManager.PathToFilesToBackup, "myFile1");
+
+            FileStream fs = File.Create(file1.Path);
+
+            FileStream fs2 = File.Create(file2.Path);
+
+            fs.Close();
+            fs2.Close();
+            job1.AddFile(file1);
+            job1.AddFile(file2);
+
+            RestorePoint restorePoint = _backupsManager.ProcessJob(job1, _storageManager, new DateTime(2021, 8, 1, 11, 0, 0));
+
+            IRestorer restorer = new Restore();
+            restorer.RestoreData("/Users/noname/Desktop/NewFolder", restorePoint);
+            var directoryInfo = new DirectoryInfo("/Users/noname/Desktop/NewFolder");
+
+            Assert.True(directoryInfo.GetFiles().ToList().Count == 2);
+
+        }
     }
 }
