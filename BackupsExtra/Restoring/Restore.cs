@@ -18,7 +18,7 @@ namespace BackupsExtra.Restoring
             foreach (string file in restorePoint.CopiesInfo)
             {
                 ZipArchive zip = ZipFile.OpenRead(file);
-                filesInZip = zip.Entries.Select(fileInZip => fileInZip.Name).ToList();
+                filesInZip.AddRange(zip.Entries.Select(fileInZip => fileInZip.Name));
             }
 
             var directoryInfo = new DirectoryInfo(restoreToLocation);
